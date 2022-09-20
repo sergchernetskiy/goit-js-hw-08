@@ -1,22 +1,34 @@
+// імпортуємо плеєр та пакет тротл бібліотеки лодаш
+import Player from '@vimeo/player';
+import throttle from 'lodash.throttle';
+
+// створюємо посилання, копію об'єкта плеєр, статичну змінну для ключа в LocalStorage
 const iframe = document.querySelector('iframe');
 const player = new Vimeo.Player(iframe);
+const STORAGE_KEY = 'videoplayer-current-time';
+//console.log(player);
 
-player.on('play', function () {
-  console.log('played the video!');
-});
+// додаємо слухача подій з відстеженням в 1 секунду
+player.on('timeupdate', throttle(onPlayerTimeUpdate, 1000));
 
-player.getVideoTitle().then(function (title) {
-  console.log('title:', title);
-});
-
-///////// Почати з пункту 4
-const onPlay = function (data) {
+// колбек LocalStorage, що робить запис поточних параметрів об'єкта timeupdate
+function onPlayerTimeUpdate({ duration, percent, seconds }) {
   // data is an object containing properties specific to that event
-  {
-    duration: 61.857;
-    percent: 0.049;
-    seconds: 3.034;
-  }
-};
+  const playerValue = {
+    duration,
+    percent,
+    seconds,
+  };
 
-player.on('play', onPlay);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(playerValue));
+}
+
+savedPlayerValue();
+//перевіряємо чи є дані в LocalStorage
+function savedPlayerValue() {
+  const savedKeyPlayer = localStorage.getItem(STORAGE_KEY);
+
+  if (savedKeyPlayer) {
+    player.setCurrentTime(JSON.parse(savedKeyPlayer));
+  }
+}
