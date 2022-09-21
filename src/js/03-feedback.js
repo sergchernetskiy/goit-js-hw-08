@@ -26,10 +26,12 @@ function onFormSubmit(event) {
 onSavedFormInput();
 
 function onSavedFormInput() {
-  const savedObj = localStorage.getItem(STORAGE_KEY);
+  const savedObj = JSON.parse(localStorage.getItem(STORAGE_KEY));
 
   if (savedObj) {
-    formRef.value = JSON.parse(savedObj);
+    Object.entries(savedObj).forEach(([name, value]) => {
+      formRef.elements[name].value = value;
+      //console.log(formRef.elements[name].value);
+    });
   }
-  console.log('все є:', savedObj);
 }
